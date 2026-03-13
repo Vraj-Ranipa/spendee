@@ -4,29 +4,46 @@ import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
 import { UserDashboard } from "@/components/dashboard/user-dashboard";
 
 export default async function DashboardPage() {
-    const session = await verifySession()
+    try {
+        const session = await verifySession()
 
-    let userRole = 'USER';
-    let userId = null;
+        let userRole = 'USER';
+        let userId = null;
 
-    if (session?.userId) {
-        userId = parseInt(session.userId as string);
-        const user = await prisma.users.findUnique({
-            where: { UserID: userId },
-            select: { Role: true }
-        });
-        if (user) {
-            userRole = user.Role;
+        if (session?.userId) {
+            userId = parseInt(session.userId as string);
+            const user = await prisma.users.findUnique({
+                where: { UserID: userId },
+                select: { Role: true }
+            });
+            if (user) {
+                userRole = user.Role;
+            }
         }
-    }
 
-    if (userRole.toUpperCase() === 'ADMIN') {
-        return <AdminDashboard />;
-    }
+        if (userRole.toUpperCase() === 'ADMIN') {
+            return <AdminDashboard />;
+        }
 
-    if (!userId) {
-        return <div className="p-8">Please log in to view the dashboard.</div>;
-    }
+        if (!userId) {
+            return <div className="p-8">Please log in to view the dashboard.</div>;
+        }
 
-    return <UserDashboard userId={userId} />;
+        return <UserDashboard userId={userId} />;
+    } catch (error: any) {
+        console.error("Dashboard Error:", error);
+        return (
+            <div className="p-8 space-y-4">
+                <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg dark:bg-rose-950/20 dark:border-rose-900/50">
+                    <h2 className="text-xl font-bold text-rose-700 dark:text-rose-400">Database Connection Error</h2>
+                    <p className="text-rose-600 dark:text-rose-500">
+                        Spendee is currently unable to connect to the database. This might be due to a temporary network issue or configuration error.
+                    </p>
+                    <pre className="mt-4 p-2 bg-zinc-100 dark:bg-zinc-800 rounded overflow-auto text-xs">
+                        {error?.message || "Unknown error"}
+                    </pre>
+                </div>
+            </div>
+        );
+    }
 }
