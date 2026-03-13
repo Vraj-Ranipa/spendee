@@ -14,6 +14,11 @@ export function serializeData<T>(data: T): any {
         return data.toISOString();
     }
 
+    // Handle BigInt
+    if (typeof data === 'bigint') {
+        return data.toString();
+    }
+
     // Handle Objects
     if (typeof data === 'object') {
         const asAny = data as any;
@@ -24,11 +29,6 @@ export function serializeData<T>(data: T): any {
             return asAny.toNumber();
         }
 
-        // Check for BigInt
-        if (typeof data === 'bigint') {
-            return data.toString();
-        }
-
         // Generic Object recursion
         const serialized: any = {};
         for (const key in data) {
@@ -37,11 +37,6 @@ export function serializeData<T>(data: T): any {
             }
         }
         return serialized;
-    }
-
-    // Handle BigInt primitives if they slipped through
-    if (typeof data === 'bigint') {
-        return data.toString();
     }
 
     return data;
