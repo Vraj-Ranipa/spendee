@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
 import { UserDashboard } from "@/components/dashboard/user-dashboard";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
     try {
         const session = await verifySession()
@@ -31,6 +33,11 @@ export default async function DashboardPage() {
 
         return <UserDashboard userId={userId} />;
     } catch (error: any) {
+        // Re-throw dynamic server usage errors so Next.js can handle them correctly
+        if (error.digest === 'DYNAMIC_SERVER_USAGE' || error.message?.includes('Dynamic server usage')) {
+            throw error;
+        }
+
         console.error("Dashboard Error:", error);
         return (
             <div className="p-8 space-y-4">
