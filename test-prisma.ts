@@ -1,8 +1,7 @@
+import dotenv from 'dotenv';
+dotenv.config();
 
 import { prisma } from './src/lib/prisma';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 async function main() {
     try {
@@ -19,6 +18,7 @@ async function main() {
         console.log('Successfully fetched people with users:', JSON.stringify(people, null, 2));
     } catch (error: any) {
         console.error('Prisma Error:', error.message);
+        if (error.cause) console.error('Error Cause:', error.cause);
         if (error.code) console.error('Error Code:', error.code);
     } finally {
         await prisma.$disconnect();

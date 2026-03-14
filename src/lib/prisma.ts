@@ -1,16 +1,22 @@
+import "dotenv/config";
 import { PrismaClient } from '@prisma/client';
 import { PrismaTiDBCloud } from '@tidbcloud/prisma-adapter';
 
-if (!process.env.DATABASE_URL) {
-  console.warn("DATABASE_URL is not set. Database connection will fail.");
-}
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-// 1. Initialize the adapter with the config object directly
-const adapter = new PrismaTiDBCloud({
-  url: process.env.DATABASE_URL as string
-});
+const createPrismaClient = () => {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+        throw new Error("DATABASE_URL is not set. Database connection will fail.");
+    }
 
-// 2. Start Prisma with the adapter
-const prisma = new PrismaClient({ adapter });
+    const adapter = new PrismaTiDBCloud({
+        url: connectionString
+    });
 
-export { prisma };
+    return new PrismaClient({ adapter });
+};
+
+export const prisma = globalForPrisma.prisma || createPrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
