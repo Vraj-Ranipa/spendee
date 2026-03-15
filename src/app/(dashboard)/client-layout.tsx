@@ -1,14 +1,8 @@
 "use client"
 import React from "react";
 import { usePathname } from "next/navigation";
-import { AppSidebar } from "@/components/shared/app-sidebar";
+import { AppNavbar } from "@/components/shared/app-navbar";
 import { Separator } from "@/components/ui/separator";
-import {
-    SidebarInset,
-    SidebarProvider,
-    SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { ModeToggle } from "@/components/mode-toggle";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -34,12 +28,10 @@ export default function DashboardClientLayout({
     const breadcrumbSegments = pathname === "/" ? [] : pathname.split("/").filter((segment) => segment);
 
     return (
-        <SidebarProvider>
-            <AppSidebar userRole={userRole} user={user} />
-            <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-                    <SidebarTrigger className="-ml-1" />
-                    <Separator orientation="vertical" className="mr-2 h-4" />
+        <div className="flex min-h-screen flex-col">
+            <AppNavbar userRole={userRole} user={user} />
+            <main className="flex-1">
+                <header className="flex h-12 shrink-0 items-center gap-2 px-4 transition-[width,height] ease-linear">
                     <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem className="hidden md:block">
@@ -69,15 +61,13 @@ export default function DashboardClientLayout({
                             })}
                         </BreadcrumbList>
                     </Breadcrumb>
-                    <div className="ml-auto">
-                        <ModeToggle />
-                    </div>
                 </header>
-                <div className="flex flex-1 flex-col gap-4 p-0 md:p-4 md:pt-0">
+                <div className="flex flex-1 flex-col gap-4 p-4 md:pt-0">
                     {children}
                     {modal}
                 </div>
-            </SidebarInset>
-        </SidebarProvider>
+            </main>
+        </div>
     );
 }
+

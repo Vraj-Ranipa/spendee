@@ -33,8 +33,17 @@ export default async function DashboardPage() {
 
         return <UserDashboard userId={userId} />;
     } catch (error: any) {
-        // Re-throw dynamic server usage errors so Next.js can handle them correctly
-        if (error.digest === 'DYNAMIC_SERVER_USAGE' || error.message?.includes('Dynamic server usage')) {
+        // IMPORTANT: Next.js uses thrown errors internally for redirect(), notFound(), etc.
+        // These must NEVER be swallowed. Check for known internal error patterns.
+        const isNextjsInternalError =
+            error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+            error?.digest?.startsWith('NEXT_') ||
+            error?.message?.includes('NEXT_REDIRECT') ||
+            error?.message?.includes('Dynamic server usage') ||
+            // Next.js 15+ redirect() throws with this message
+            error?.message?.includes('redirect');
+
+        if (isNextjsInternalError) {
             throw error;
         }
 
